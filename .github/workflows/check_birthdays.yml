@@ -1,0 +1,29 @@
+name: Check birthdays
+
+on:
+  schedule:
+    # 06:00 UTC = 08:00 Europe/Amsterdam tijdens zomertijd (CEST, UTC+2)
+    - cron: '0 6 * * *'
+    # 07:00 UTC = 08:00 Europe/Amsterdam tijdens wintertijd (CET, UTC+1)
+    - cron: '0 7 * * *'
+  workflow_dispatch: {}  # handmatig te triggeren vanuit de Actions tab, handig om te testen
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check birthdays and notify
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: python check_birthdays.py
