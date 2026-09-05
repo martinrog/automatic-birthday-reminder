@@ -1,0 +1,5 @@
+requests
+# tzdata levert de IANA-tijdzonedata voor zoneinfo (Europe/Amsterdam).
+# Op Linux-runners is er meestal systeem-tzdata, maar dit maakt het
+# script overal betrouwbaar (o.a. Windows) zonder extra aannames.
+tzdata

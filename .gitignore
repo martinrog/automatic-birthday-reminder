@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Virtuele omgevingen
+venv/
+.venv/
+env/
+.env
+
+# Lokale test-/scratchbestanden
+_test_local.py
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
