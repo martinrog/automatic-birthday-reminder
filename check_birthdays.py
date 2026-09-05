@@ -22,8 +22,25 @@ DATA_FILE = os.path.join(os.path.dirname(__file__), "birthdays.json")
 
 
 def load_birthdays():
-    with open(DATA_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
+    """Laadt de verjaardagslijst.
+
+    Voorkeur: de BIRTHDAYS_JSON secret (zodat persoonlijke data niet in de
+    publieke repo hoeft te staan). Valt terug op een lokale birthdays.json,
+    handig voor lokaal testen.
+    """
+    raw = os.environ.get("BIRTHDAYS_JSON")
+    if raw:
+        return json.loads(raw)
+
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    print(
+        "Geen BIRTHDAYS_JSON secret en geen lokale birthdays.json gevonden.",
+        file=sys.stderr,
+    )
+    sys.exit(1)
 
 
 def send_notification(topic: str, name: str, age: int | None):
