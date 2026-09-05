@@ -6,13 +6,34 @@ telefoon via [ntfy.sh](https://ntfy.sh) als iemand uit je lijst jarig is.
 
 ## Hoe het werkt
 
-- Een GitHub Actions workflow draait elke dag automatisch.
-- Het script (`check_birthdays.py`) checkt of het écht 8:00 lokale tijd
-  (Europe/Amsterdam) is — de workflow triggert op twee UTC-tijden om de
-  zomer-/wintertijdwissel automatisch op te vangen, zonder dat je ooit de
-  cron hoeft aan te passen.
-- Als iemand uit `birthdays.json` vandaag jarig is, gaat er een
-  pushnotificatie naar je telefoon.
+Het systeem houdt niets bij en draait niet continu — het begint elke keer
+met een schone lei en doet in een paar seconden zijn werk:
+
+1. **GitHub Actions start de workflow op een vast schema (cron).** Elke dag
+   op twee momenten: `06:00` en `07:00` UTC. Dat is een timer aan GitHub's
+   kant; er hoeft niets "aan te staan".
+2. **Twee tijden vanwege zomer-/wintertijd.** In de zomer (CEST, UTC+2) is
+   `06:00 UTC` = 08:00 bij jou; in de winter (CET, UTC+1) is `07:00 UTC` =
+   08:00. Beide runs starten altijd, maar het script checkt zelf of het
+   *nu* echt 08:00 lokale tijd (Europe/Amsterdam) is en stopt anders meteen.
+   Zo hoef je de cron nooit aan te passen.
+3. **De lijst wordt élke run vers opgehaald.** De workflow downloadt telkens
+   de huidige `birthdays.json` uit de privé-repo (zie hieronder). Er is geen
+   cache en geen wijzigingsdetectie: wat er op dat moment staat, wordt
+   gebruikt. Pas je de lijst aan, dan pikt de eerstvolgende ochtend-run dat
+   automatisch op — je hoeft niets te triggeren.
+4. **Vergelijken met vandaag.** Alleen om 08:00 loopt het script door de
+   lijst en vergelijkt per persoon `(dag, maand)` met de datum van vandaag.
+   Voor elke match gaat er een pushnotificatie naar je telefoon.
+
+```
+Elke dag, 2×:  GitHub cron start de workflow
+      │
+      ├─ haalt verse birthdays.json uit de privé-repo op
+      ├─ is het nu 08:00 in NL?  nee → stop  |  ja ↓
+      ├─ loop door alle namen: is (dag, maand) == vandaag?
+      └─ voor elke match → stuur ntfy-melding 📲
+```
 
 ## Setup
 
