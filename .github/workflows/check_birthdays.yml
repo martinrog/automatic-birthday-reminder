@@ -15,6 +15,16 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Checkout birthday data (private repo)
+        uses: actions/checkout@v4
+        with:
+          repository: martinrog/birthday-list
+          ssh-key: ${{ secrets.DATA_DEPLOY_KEY }}
+          path: _data
+
+      - name: Provide birthday data
+        run: cp _data/birthdays.json birthdays.json
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -26,5 +36,4 @@ jobs:
       - name: Check birthdays and notify
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
-          BIRTHDAYS_JSON: ${{ secrets.BIRTHDAYS_JSON }}
         run: python check_birthdays.py

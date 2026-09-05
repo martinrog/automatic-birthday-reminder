@@ -24,15 +24,12 @@ telefoon via [ntfy.sh](https://ntfy.sh) als iemand uit je lijst jarig is.
 4. **Zet het topic als GitHub Secret**: ga naar
    `Settings → Secrets and variables → Actions → New repository secret`,
    naam `NTFY_TOPIC`, waarde je gekozen topic.
-5. **Zet je verjaardagslijst als GitHub Secret** `BIRTHDAYS_JSON`. Zo blijft
-   persoonlijke data uit deze (publieke) repo. Plak als waarde de volledige
-   JSON, bijvoorbeeld:
-   ```json
-   [
-     { "name": "Sanne", "date": "03-14" },
-     { "name": "Tim", "date": "07-22", "year": 1999 }
-   ]
-   ```
+5. **De verjaardagslijst** staat in een **aparte privé-repo** (`birthday-list`)
+   in het bestand `birthdays.json`. Zo blijft persoonlijke data uit deze
+   publieke repo. De workflow haalt dat bestand op via een read-only
+   deploy key (opgeslagen als secret `DATA_DEPLOY_KEY`).
+   Bijwerken kan makkelijk vanaf je telefoon met de **GitHub-app**: open de
+   privé-repo → `birthdays.json` → potloodje → aanpassen → commit.
    Formaat: `date` is `MM-DD`, `year` is optioneel — vul je die in, dan komt
    de leeftijd in het bericht. Zie [`birthdays.example.json`](birthdays.example.json)
    als sjabloon.
@@ -40,9 +37,9 @@ telefoon via [ntfy.sh](https://ntfy.sh) als iemand uit je lijst jarig is.
    Run workflow** (handmatige trigger), zodat je niet hoeft te wachten
    tot 8:00 uur.
 
-> **Lokaal testen?** Kopieer `birthdays.example.json` naar `birthdays.json`
-> (die staat in `.gitignore`) — als de `BIRTHDAYS_JSON` secret ontbreekt,
-> valt het script terug op dat lokale bestand.
+> **Lokaal testen?** Zet een `birthdays.json` in deze map (staat in
+> `.gitignore`) — het script leest dat bestand. Je kunt ook de
+> `BIRTHDAYS_JSON` omgevingsvariabele zetten; die krijgt voorrang.
 
 ## Bestanden
 
@@ -53,5 +50,5 @@ telefoon via [ntfy.sh](https://ntfy.sh) als iemand uit je lijst jarig is.
 | `.github/workflows/check_birthdays.yml` | De dagelijkse trigger |
 | `requirements.txt` | Python dependencies |
 
-> `birthdays.json` staat bewust **niet** in de repo (privacy) — de echte
-> lijst leeft in de `BIRTHDAYS_JSON` secret.
+> `birthdays.json` staat bewust **niet** in deze repo (privacy) — de echte
+> lijst leeft in de aparte privé-repo `birthday-list`.
