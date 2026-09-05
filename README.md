@@ -24,18 +24,34 @@ telefoon via [ntfy.sh](https://ntfy.sh) als iemand uit je lijst jarig is.
 4. **Zet het topic als GitHub Secret**: ga naar
    `Settings → Secrets and variables → Actions → New repository secret`,
    naam `NTFY_TOPIC`, waarde je gekozen topic.
-5. **Vul `birthdays.json`** aan met je eigen lijst (formaat: `MM-DD`,
-   `year` is optioneel — als je die invult wordt de leeftijd in het
-   bericht vermeld).
+5. **Zet je verjaardagslijst als GitHub Secret** `BIRTHDAYS_JSON`. Zo blijft
+   persoonlijke data uit deze (publieke) repo. Plak als waarde de volledige
+   JSON, bijvoorbeeld:
+   ```json
+   [
+     { "name": "Sanne", "date": "03-14" },
+     { "name": "Tim", "date": "07-22", "year": 1999 }
+   ]
+   ```
+   Formaat: `date` is `MM-DD`, `year` is optioneel — vul je die in, dan komt
+   de leeftijd in het bericht. Zie [`birthdays.example.json`](birthdays.example.json)
+   als sjabloon.
 6. Klaar. Test het meteen via het tabblad **Actions → Check birthdays →
    Run workflow** (handmatige trigger), zodat je niet hoeft te wachten
    tot 8:00 uur.
+
+> **Lokaal testen?** Kopieer `birthdays.example.json` naar `birthdays.json`
+> (die staat in `.gitignore`) — als de `BIRTHDAYS_JSON` secret ontbreekt,
+> valt het script terug op dat lokale bestand.
 
 ## Bestanden
 
 | Bestand | Doel |
 |---|---|
-| `birthdays.json` | Lijst met namen + geboortedatums |
+| `birthdays.example.json` | Sjabloon voor de verjaardagslijst (formaat) |
 | `check_birthdays.py` | Checkt of iemand jarig is en stuurt de notificatie |
 | `.github/workflows/check_birthdays.yml` | De dagelijkse trigger |
 | `requirements.txt` | Python dependencies |
+
+> `birthdays.json` staat bewust **niet** in de repo (privacy) — de echte
+> lijst leeft in de `BIRTHDAYS_JSON` secret.
