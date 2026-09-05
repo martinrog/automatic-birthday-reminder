@@ -15,6 +15,7 @@ birthdays.json
 
 # Lokale test-/scratchbestanden
 _test_local.py
+send_test_notification.py
 
 # Editor / OS
 .vscode/
