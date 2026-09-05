@@ -7,6 +7,9 @@ per dag (om de zomer-/wintertijd-wissel op te vangen). Het script zelf
 bepaalt of het NU echt 8:00 lokale tijd (Europe/Amsterdam) is, en stuurt
 alleen dan een melding. Zo hoeft niemand de cron twee keer per jaar aan
 te passen.
+
+Datumformaat: DD-MM (Nederlands), bv. "19-04" = 19 april. Het jaar is
+optioneel; vul je die in, dan komt de leeftijd in het bericht.
 """
 
 import json
@@ -19,6 +22,7 @@ import requests
 
 TARGET_HOUR = 8  # lokale tijd waarop je de melding wil ontvangen
 DATA_FILE = os.path.join(os.path.dirname(__file__), "birthdays.json")
+NOTIFICATION_TITLE = "Verjaardag!"  # ASCII: HTTP-headers moeten latin-1 zijn
 
 
 def load_birthdays():
@@ -43,20 +47,61 @@ def load_birthdays():
     sys.exit(1)
 
 
-def send_notification(topic: str, name: str, age: int | None):
-    # Let op: HTTP-headers moeten latin-1 zijn, dus geen emoji in Title.
-    # De emoji zetten we in de body (die versturen we als UTF-8).
-    title = "Verjaardag!"
-    if age is not None:
-        message = f"🎂 {name} wordt vandaag {age} jaar. Vergeet niet te feliciteren!"
-    else:
-        message = f"🎂 {name} is vandaag jarig. Vergeet niet te feliciteren!"
+def parse_date(date_str):
+    """Parseert een 'DD-MM'-datum naar (dag, maand).
 
+    Geeft None terug bij een ongeldige/onparseerbare datum (bv. een lege
+    sjabloon-regel of een per ongeluk als MM-DD ingevulde datum).
+    """
+    try:
+        day, month = (int(part) for part in date_str.split("-"))
+    except (ValueError, AttributeError):
+        return None
+    if not (1 <= month <= 12 and 1 <= day <= 31):
+        return None
+    return day, month
+
+
+def birthdays_today(birthdays, now):
+    """Geeft de personen terug die op de datum van `now` jarig zijn.
+
+    Lege sjabloon-regels (zonder naam) worden stil overgeslagen; regels met
+    een naam maar een ongeldige datum leveren een waarschuwing op, zodat een
+    typefout niet ongemerkt blijft.
+    """
+    matches = []
+    for person in birthdays:
+        name = (person.get("name") or "").strip()
+        if not name:
+            continue  # lege sjabloon-regel
+
+        parsed = parse_date(person.get("date", ""))
+        if parsed is None:
+            print(
+                f"Waarschuwing: ongeldige datum voor '{name}': "
+                f"{person.get('date')!r} (verwacht DD-MM). Overgeslagen.",
+                file=sys.stderr,
+            )
+            continue
+
+        if (now.day, now.month) == parsed:
+            matches.append(person)
+    return matches
+
+
+def build_message(name, age):
+    """Bouwt de berichttekst (emoji in de body, die gaat als UTF-8)."""
+    if age is not None:
+        return f"🎂 {name} wordt vandaag {age} jaar. Vergeet niet te feliciteren!"
+    return f"🎂 {name} is vandaag jarig. Vergeet niet te feliciteren!"
+
+
+def send_notification(topic: str, name: str, age: int | None):
     resp = requests.post(
         f"https://ntfy.sh/{topic}",
-        data=message.encode("utf-8"),
+        data=build_message(name, age).encode("utf-8"),
         headers={
-            "Title": title,
+            "Title": NOTIFICATION_TITLE,
             "Tags": "birthday,tada",
             "Priority": "default",
         },
@@ -78,19 +123,15 @@ def main():
         print("Geen NTFY_TOPIC secret gevonden, kan niks versturen.", file=sys.stderr)
         sys.exit(1)
 
-    today = now.strftime("%m-%d")
     birthdays = load_birthdays()
-
-    matches = [b for b in birthdays if b.get("date") == today]
+    matches = birthdays_today(birthdays, now)
 
     if not matches:
-        print(f"Niemand is vandaag ({today}) jarig.")
+        print(f"Niemand is vandaag ({now:%d-%m}) jarig.")
         return
 
     for person in matches:
-        age = None
-        if "year" in person:
-            age = now.year - person["year"]
+        age = now.year - person["year"] if "year" in person else None
         send_notification(topic, person["name"], age)
 
 

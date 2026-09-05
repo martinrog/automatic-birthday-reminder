@@ -30,9 +30,11 @@ telefoon via [ntfy.sh](https://ntfy.sh) als iemand uit je lijst jarig is.
    deploy key (opgeslagen als secret `DATA_DEPLOY_KEY`).
    Bijwerken kan makkelijk vanaf je telefoon met de **GitHub-app**: open de
    privé-repo → `birthdays.json` → potloodje → aanpassen → commit.
-   Formaat: `date` is `MM-DD`, `year` is optioneel — vul je die in, dan komt
-   de leeftijd in het bericht. Zie [`birthdays.example.json`](birthdays.example.json)
-   als sjabloon.
+   Formaat: `date` is `DD-MM` (Nederlands, bv. `19-04` = 19 april), `year`
+   is optioneel — vul je die in, dan komt de leeftijd in het bericht. Zie
+   [`birthdays.example.json`](birthdays.example.json) als sjabloon. Lege
+   sjabloon-regels (`"date": "DD-MM"`) triggeren nooit een melding, dus die
+   mag je laten staan om snel een nieuwe regel te kunnen invullen.
 6. Klaar. Test het meteen via het tabblad **Actions → Check birthdays →
    Run workflow** (handmatige trigger), zodat je niet hoeft te wachten
    tot 8:00 uur.
@@ -47,7 +49,9 @@ telefoon via [ntfy.sh](https://ntfy.sh) als iemand uit je lijst jarig is.
 |---|---|
 | `birthdays.example.json` | Sjabloon voor de verjaardagslijst (formaat) |
 | `check_birthdays.py` | Checkt of iemand jarig is en stuurt de notificatie |
+| `tests/` | Unit tests (`python -m unittest discover -s tests`) |
 | `.github/workflows/check_birthdays.yml` | De dagelijkse trigger |
+| `.github/workflows/tests.yml` | Draait de unit tests bij elke push |
 | `requirements.txt` | Python dependencies |
 
 > `birthdays.json` staat bewust **niet** in deze repo (privacy) — de echte

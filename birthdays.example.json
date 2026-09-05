@@ -1,5 +1,8 @@
 [
-  { "name": "Sanne", "date": "03-14" },
-  { "name": "Tim", "date": "07-22", "year": 1999 },
-  { "name": "Lisa", "date": "11-05" }
+  { "name": "Sanne", "date": "14-03" },
+  { "name": "Tim", "date": "22-07", "year": 1999 },
+  { "name": "Lisa", "date": "05-11" },
+
+  { "name": "", "date": "DD-MM" },
+  { "name": "", "date": "DD-MM", "year": 0 }
 ]
