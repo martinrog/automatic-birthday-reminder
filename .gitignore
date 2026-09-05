@@ -10,6 +10,9 @@ venv/
 env/
 .env
 
+# Persoonlijke data (privacy: geen verjaardagen van vrienden in git)
+birthdays.json
+
 # Lokale test-/scratchbestanden
 _test_local.py
 
