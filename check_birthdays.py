@@ -44,11 +44,13 @@ def load_birthdays():
 
 
 def send_notification(topic: str, name: str, age: int | None):
-    title = "Verjaardag! 🎂"
+    # Let op: HTTP-headers moeten latin-1 zijn, dus geen emoji in Title.
+    # De emoji zetten we in de body (die versturen we als UTF-8).
+    title = "Verjaardag!"
     if age is not None:
-        message = f"{name} wordt vandaag {age} jaar. Vergeet niet te feliciteren!"
+        message = f"🎂 {name} wordt vandaag {age} jaar. Vergeet niet te feliciteren!"
     else:
-        message = f"{name} is vandaag jarig. Vergeet niet te feliciteren!"
+        message = f"🎂 {name} is vandaag jarig. Vergeet niet te feliciteren!"
 
     resp = requests.post(
         f"https://ntfy.sh/{topic}",
